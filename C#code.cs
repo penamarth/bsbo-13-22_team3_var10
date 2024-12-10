@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-// в диаграмме классов отсутствует турникет, поэтому его здесь нет
-
 
 public class User
 {
-	public static void Main() // здесь заполнение данными и вызовы функций
+	public static void Main()
 	{
 	    PaymentSystem ps = new PaymentSystem();
 	    
@@ -282,14 +280,14 @@ internal class PaymentSystem
 internal class Stadium
 {
     internal List<Match> matches = new List<Match>();
-    internal int rows, seatsinrow, capacity; //новые переменные: количество рядов и количество мест в ряду т к в месте по диограмме уже хранятся ряд и номер
+    internal int rows, seatsinrow, capacity; 
     public Stadium(List<Match> newmatches,int rows = 2, int seatsinrow = 10)
     {
         this.rows=rows;
         this.seatsinrow=seatsinrow;
         for (int i=0 ; i < newmatches.Count;i++)
         {
-            matches.Add(new Match(newmatches[i].date,rows,seatsinrow)); // костыль с пересозданием матчей в стадионе (get set)
+            matches.Add(new Match(newmatches[i].date,rows,seatsinrow));
         }
         capacity = rows*seatsinrow;
     }
@@ -326,14 +324,14 @@ internal class Stadium
 internal class Match
 {
     internal DateTime date;
-    internal int rows, seatsinrow; // новые переменные для заполнения билетов (ряд и количество мест в ряду — номер)
+    internal int rows, seatsinrow;
     internal List<Seat[]> seats = new List<Seat[]>();
     public Match(DateTime date,int rows=1, int seatsinrow=1)
     {
         this.date=date;
         this.rows=rows;
         this.seatsinrow=seatsinrow;
-        for (int i=0;i< rows;i++) //заполнение билетов
+        for (int i=0;i< rows;i++)
         {
             seats.Add(new Seat[seatsinrow]);
             for (int u=0;u< seatsinrow;u++)
