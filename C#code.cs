@@ -63,9 +63,16 @@ public class User
         
         DateTime start= new DateTime(2020,1,15),end = new DateTime(2025,1,15);
 		Console.WriteLine(ps.BuySeasonTicket(stadiums[0],start,end,"fio"));
-		Console.WriteLine(ps.BuyTicket(stadiums[0],stadiums[0].matches[1],1,2, "fio"));
-		Console.WriteLine(ps.ReturnTicket(stadiums[0],stadiums[0].matches[1],1,2, "fio"));
+		//Console.WriteLine(ps.BuyTicket(stadiums[0],stadiums[0].matches[1],1,2, "fio"));
+		//Console.WriteLine(ps.ReturnTicket(stadiums[0],stadiums[0].matches[1],1,2, "fio"));
+		Console.WriteLine(ps.AddToKart(stadiums[0],stadiums[0].matches[1],1,2, "fio"));
+		Console.WriteLine(ps.ByInKart());
 		Console.WriteLine(ps.ReturnSeasonTicket("fio"));
+		Console.WriteLine("-------------");
+        foreach (string i in ps.SeeMatchSeats(stadiums[0].matches[1]))
+        {
+            Console.WriteLine(i);
+        }
 	}
 }
 
@@ -146,14 +153,52 @@ internal class Sale
 
 internal class PaymentSystem
 {
-    internal List<Sale> sales = new List<Sale>();
+    internal List<Sale> sales = new List<Sale>(); // rename to cart (sales)
     internal List<Ticket> tickets = new List<Ticket>();
     internal List<SeasonTicket> seasontickets = new List<SeasonTicket>();
     internal Transaction trans = new Transaction();
     internal AdapterTransactionPayment paymentA;
+    
+    internal List<Ticket> karttickets = new List<Ticket>();
+    
     internal PaymentSystem()
     {
         paymentA = new AdapterTransactionPayment(trans);
+    }
+    
+    internal string  AddToKart(Stadium stad,Match match,int placerow,int place, string persdata)
+    {
+        if(match.seats[placerow][place].state == "taken")
+		{
+		    return ("Место занято");
+		}
+		
+		match.seats[placerow][place].state = "taken";
+		
+		Ticket ticket = new Ticket(stad,match,match.seats[placerow][place]);
+		ticket.persdata=persdata;
+		karttickets.Add(ticket);
+		return ("карзина паполненна");
+    }
+    
+    internal string ByInKart()
+    {
+        foreach (Ticket k in karttickets)
+        {
+        bool haveseasonticket=false;
+		foreach(SeasonTicket i in seasontickets)
+		{
+		    if (i.persdata==k.persdata & i.end > DateTime.Now & i.stadium == k.stadium)
+		        haveseasonticket=true;
+		}
+		if (!haveseasonticket)
+		    paymentA.MakePaymentTicket(k);
+		
+		tickets.Add(k);
+		sales.Add(new Sale(k.persdata,"ticket bought"));
+        }
+        karttickets.Clear();
+        return ("покупка завершена");
     }
     
     internal List<string> SeeFreeSeats(Stadium stad)
@@ -171,7 +216,7 @@ internal class PaymentSystem
         return stad.FutureMatch();
     }
     
-	internal string BuyTicket(Stadium stad,Match match,int placerow,int place, string persdata)
+	/*internal string BuyTicket(Stadium stad,Match match,int placerow,int place, string persdata)
 	{
 		if(match.seats[placerow][place].state == "taken")
 		{
@@ -195,7 +240,7 @@ internal class PaymentSystem
 		tickets.Add(ticket);
 		sales.Add(new Sale(ticket.persdata,"ticket bought"));
 		return ("успешная покупка билета");
-	}
+	}*/
 	
 	internal string ReturnTicket(Stadium stad,Match match,int placerow,int place, string persdata)
 	{
@@ -389,4 +434,3 @@ internal class SeasonTicket : Document
         this.stadium =stadium;
     }
 }
-
